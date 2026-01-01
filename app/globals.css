@@ -1,0 +1,88 @@
+:root {
+  --primary-color: #7c0eb3;
+}
+
+/* Reset default styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: #121212;  /* Dark background */
+  color: white;  /* Light text color */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;   /* Center the content horizontally */
+  align-items: center;       /* Center the content vertically */
+  text-align: center;        /* Center the text */
+}
+
+button {
+  padding: 14px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Style for the rounded square in the center */
+.rounded-square {
+  padding:20px;
+  max-width: 900px;
+  min-width: 600px;
+  min-height: 600px;
+  margin: 60px auto;
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.login-input input {
+  outline-color: var(--primary-color);
+  outline-width: 1px;
+  outline-style: solid;
+}
+
+.nav-buttons {
+  display: flex;
+  border-bottom: 1px solid #333;
+  margin-bottom: 30px;
+}
+
+.nav-button {
+  padding: 14px 28px;
+  color: #aaa;
+  text-decoration: none;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  text-align: center;
+  flex: 1;
+}
+
+.nav-button.active {
+  color: white;
+  border-bottom: 3px solid var(--primary-color);  /* Highlight the current page */
+  font-weight: bold;
+}

@@ -9,6 +9,6 @@ db.exec(`
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL
   );
-`);
+`)
 
 export default db

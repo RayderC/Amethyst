@@ -5,7 +5,7 @@ import '../globals.css';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function Login() {
+export default function Register() {
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -15,41 +15,35 @@ export default function Login() {
       email: { value: string };
       password: { value: string };
     };
-    const res = await fetch("/api/login", {
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    const res = await fetch("/api/register", {
       method: "POST",
-      body: JSON.stringify({
-        email: form.email.value,
-        password: form.password.value,
-      }),
+      body: JSON.stringify({ email, password }),
       headers: { "Content-Type": "application/json" }
     });
     if (res.ok) router.push("/dashboard");
     else setError((await res.json()).message || "Error");
   }
+
   return (
     <div>
       <Navigation />
-      {/* Header */}
       <div style={{ paddingBottom: "10px", marginBottom: "30px" }}>
-        <h1 style={{ fontSize: "32px", fontWeight: "bold" }}>
-          Login
-        </h1>
+        <h1 style={{ fontSize: "32px", fontWeight: "bold" }}>Register</h1>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {error && <div style={{ color: "red" }}>{error}</div>}
         <div className="login-input">
-          <label htmlFor="email" style={{ display: "block", marginBottom: "8px", fontSize: "14px" }}></label>
           <input type="email" id="email" name="email" required placeholder="Enter Your Email" />
         </div>
 
         <div className="login-input">
-          <label htmlFor="password" style={{ display: "block", marginBottom: "8px", fontSize: "14px" }}></label>
           <input type="password" id="password" name="password" required placeholder="Enter Your Password" />
         </div>
 
-        <button type="submit">Sign In</button>
+        <button type="submit">Register</button>
       </form>
     </div>
   );

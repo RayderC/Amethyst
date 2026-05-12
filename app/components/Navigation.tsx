@@ -24,6 +24,9 @@ export default function Navigation() {
           <Link href="/" className={`nav-link${pathname === "/" ? " active" : ""}`}>Home</Link>
           <Link href="/projects" className={`nav-link${pathname.startsWith("/projects") ? " active" : ""}`}>Projects</Link>
           {isAdmin && (
+            <Link href="/sessions" className={`nav-link${pathname.startsWith("/sessions") ? " active" : ""}`}>Sessions</Link>
+          )}
+          {isAdmin && (
             <Link href="/dashboard" className={`nav-link${pathname.startsWith("/dashboard") ? " active" : ""}`}>
               Dashboard
             </Link>

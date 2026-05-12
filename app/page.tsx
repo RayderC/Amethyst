@@ -44,12 +44,18 @@ export default function Home() {
             </Link>
           </div>
         </div>
+
+        {/* Scroll indicator */}
+        <a href="#about" className="scroll-indicator" aria-label="Scroll down">
+          <span className="scroll-indicator-text">Scroll</span>
+          <span className="scroll-indicator-arrow">↓</span>
+        </a>
       </section>
 
       <hr className="section-divider" />
 
       {/* About */}
-      <section className="section">
+      <section id="about" className="section">
         <p className="section-eyebrow">About</p>
         <div className="about-grid">
           <div>

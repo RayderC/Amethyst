@@ -35,4 +35,17 @@ try {
   db.exec(`ALTER TABLE projects ADD COLUMN youtube_url TEXT NOT NULL DEFAULT ''`)
 } catch { /* column already exists */ }
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS service_links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    category TEXT NOT NULL DEFAULT 'General',
+    icon_url TEXT NOT NULL DEFAULT '',
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`)
+
 export default db

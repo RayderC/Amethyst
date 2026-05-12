@@ -260,6 +260,7 @@ a { color: inherit; text-decoration: none; }
   padding: 80px 32px;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
 }
 
 .hero-content { max-width: 760px; }
@@ -317,6 +318,47 @@ a { color: inherit; text-decoration: none; }
 }
 
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ===================== SCROLL INDICATOR ===================== */
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-subtle);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.2s;
+  animation: fadeInUp 1s ease 0.8s both;
+}
+
+.scroll-indicator:hover { color: var(--primary-light); }
+
+.scroll-indicator-text { font-size: 10px; letter-spacing: 0.15em; }
+
+.scroll-indicator-arrow {
+  font-size: 18px;
+  animation: bounceDown 1.8s ease-in-out infinite;
+  display: block;
+}
+
+@keyframes bounceDown {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
 
 /* ===================== SECTIONS ===================== */
 
@@ -1074,4 +1116,107 @@ a { color: inherit; text-decoration: none; }
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* ===================== SESSIONS / SERVICE CARDS ===================== */
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.service-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(168,85,247,0.04) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.service-card:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.service-card:hover::before { opacity: 1; }
+
+.service-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border-bright);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.service-card-icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.service-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+
+.service-card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.service-card-url {
+  font-size: 11px;
+  color: var(--text-subtle);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-card-arrow {
+  font-size: 16px;
+  color: var(--text-subtle);
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.service-card:hover .service-card-arrow {
+  color: var(--primary-light);
+  transform: translate(2px, -2px);
 }

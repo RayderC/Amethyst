@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navigation from "../components/Navigation";
 import type { ServiceLink } from "../../pages/api/sessions/index";
+import { normalizeUrl, safeHostname } from "../../lib/url";
 
 type GroupedLinks = Record<string, ServiceLink[]>;
 
-export default function SessionsPage() {
+export default function HubPage() {
   const router = useRouter();
   const [links, setLinks] = useState<ServiceLink[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +52,7 @@ export default function SessionsPage() {
         <div style={{ marginBottom: "56px" }}>
           <p className="section-eyebrow">Admin</p>
           <h1 style={{ fontSize: "clamp(32px,5vw,52px)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "12px" }}>
-            Sessions
+            Hub
           </h1>
           <p style={{ fontSize: "16px", color: "var(--text-muted)", maxWidth: "520px" }}>
             Your private gateway to self-hosted services and tools.
@@ -89,11 +90,12 @@ export default function SessionsPage() {
 }
 
 function ServiceCard({ link }: { link: ServiceLink }) {
-  const faviconSrc = `/api/favicon?url=${encodeURIComponent(link.url)}`;
+  const href = normalizeUrl(link.url);
+  const faviconSrc = `/api/favicon?url=${encodeURIComponent(href)}`;
 
   return (
     <a
-      href={link.url}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       className="service-card"
@@ -115,7 +117,7 @@ function ServiceCard({ link }: { link: ServiceLink }) {
           <div className="service-card-desc">{link.description}</div>
         )}
         <div className="service-card-url">
-          {new URL(link.url).hostname}
+          {safeHostname(href)}
         </div>
       </div>
       <div className="service-card-arrow">↗</div>

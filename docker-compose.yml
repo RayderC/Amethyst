@@ -1,14 +1,11 @@
 services:
   amethyst:
-    build: .
+    image: amethyst:latest
     container_name: amethyst
     restart: always
     ports:
       # host:container
       - 3000:3000
-    environment:
-      # REQUIRED: 32+ characters. openssl rand -base64 48
-      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set (>=32 chars)}
     volumes:
       # SQLite database
       - ./data:/data

@@ -34,9 +34,7 @@ WORKDIR /app
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd --system --gid 1001 nodejs \
-    && useradd --system --uid 1001 --gid nodejs nextjs
+    && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -48,16 +46,13 @@ ENV DATABASE_PATH=/data/amethyst.db
 ENV SESSION_COOKIE_SECURE=false
 
 # Standalone server, static assets, and public folder.
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
+    && mkdir -p /data /app/public/uploads
 
-# Persisted state: SQLite DB at /data, uploaded images at /app/public/uploads.
-RUN mkdir -p /data /app/public/uploads \
-    && chown -R nextjs:nodejs /data /app/public/uploads
-
-USER nextjs
 EXPOSE 3000
-VOLUME ["/data", "/app/public/uploads"]
 
-CMD ["node", "server.js"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ServiceLink } from "../../../pages/api/sessions/index";
+import { normalizeUrl } from "../../../lib/url";
 
 type FormState = {
   name: string;
@@ -13,7 +14,7 @@ type FormState = {
 
 const empty: FormState = { name: "", url: "", description: "", category: "General", sort_order: "0" };
 
-export default function DashboardSessionsPage() {
+export default function DashboardHubPage() {
   const [links, setLinks] = useState<ServiceLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ServiceLink | null>(null);
@@ -36,7 +37,7 @@ export default function DashboardSessionsPage() {
   // Auto-preview favicon when URL changes
   useEffect(() => {
     try {
-      const u = new URL(form.url);
+      const u = new URL(normalizeUrl(form.url));
       setFaviconPreview(`/api/favicon?url=${encodeURIComponent(u.href)}`);
     } catch {
       setFaviconPreview("");
@@ -75,7 +76,7 @@ export default function DashboardSessionsPage() {
     try {
       const body = {
         name: form.name.trim(),
-        url: form.url.trim(),
+        url: normalizeUrl(form.url),
         description: form.description.trim(),
         category: form.category.trim() || "General",
         icon_url: "",
@@ -117,8 +118,8 @@ export default function DashboardSessionsPage() {
     <>
       <div className="dash-header">
         <div>
-          <h1 className="dash-title">Sessions</h1>
-          <p className="dash-subtitle">Manage links to your self-hosted services.</p>
+          <h1 className="dash-title">Hub</h1>
+          <p className="dash-subtitle">Manage external links shown on your Hub page.</p>
         </div>
         {!showForm && (
           <button className="btn btn-primary" onClick={openAdd}>+ Add Service</button>
@@ -237,11 +238,13 @@ export default function DashboardSessionsPage() {
               </tr>
             </thead>
             <tbody>
-              {links.map((link) => (
+              {links.map((link) => {
+                const href = normalizeUrl(link.url);
+                return (
                 <tr key={link.id}>
                   <td>
                     <img
-                      src={`/api/favicon?url=${encodeURIComponent(link.url)}`}
+                      src={`/api/favicon?url=${encodeURIComponent(href)}`}
                       alt=""
                       width={20}
                       height={20}
@@ -252,12 +255,12 @@ export default function DashboardSessionsPage() {
                   <td style={{ fontWeight: 600 }}>{link.name}</td>
                   <td>
                     <a
-                      href={link.url}
+                      href={href}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: "var(--primary-light)", fontSize: "13px" }}
                     >
-                      {link.url}
+                      {href}
                     </a>
                   </td>
                   <td>
@@ -283,7 +286,8 @@ export default function DashboardSessionsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

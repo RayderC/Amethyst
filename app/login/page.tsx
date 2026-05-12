@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch("/api/setup")
+      .then((r) => r.json())
+      .then((data) => { if (data?.needsSetup) router.replace("/setup"); })
+      .catch(() => {});
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -51,11 +58,6 @@ export default function Login() {
             {loading ? "Signing in…" : "Sign In"}
           </button>
         </form>
-
-        <p style={{ marginTop: "20px", fontSize: "13px", color: "var(--text-subtle)", textAlign: "center" }}>
-          No account?{" "}
-          <Link href="/register" className="auth-link">Register</Link>
-        </p>
       </div>
     </div>
   );

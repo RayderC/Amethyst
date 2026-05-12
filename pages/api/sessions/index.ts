@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../../lib/db";
 import { getIronSession } from "iron-session";
 import { sessionOptions } from "../../../lib/session";
+import { normalizeUrl } from "../../../lib/url";
 
 export type ServiceLink = {
   id: number;
@@ -33,13 +34,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { name, url, description, category, icon_url, sort_order } = req.body;
     if (!name || !url) return res.status(400).json({ message: "Name and URL are required" });
 
+    const normalized = normalizeUrl(url);
+    try {
+      new URL(normalized);
+    } catch {
+      return res.status(400).json({ message: "Invalid URL" });
+    }
+
     const stmt = db.prepare(`
       INSERT INTO service_links (name, url, description, category, icon_url, sort_order)
       VALUES (?, ?, ?, ?, ?, ?)
     `);
     const info = stmt.run(
       name,
-      url,
+      normalized,
       description || "",
       category || "General",
       icon_url || "",

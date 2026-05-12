@@ -2,8 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../lib/db";
 import bcrypt from "bcryptjs";
 import { getIronSession } from "iron-session";
-import { sessionOptions, User } from "../../lib/session";
-import { isAdmin } from "../../lib/admin";
+import { sessionOptions } from "../../lib/session";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -11,22 +10,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const { email, password } = req.body;
+  const session = await getIronSession(req, res, sessionOptions);
+  if (!session.user?.isAdmin) {
+    res.status(403).json({ message: "Only an administrator may create accounts" });
+    return;
+  }
+
+  const { email, password, isAdmin } = req.body;
   if (!email || !password) {
     res.status(400).json({ message: "Missing field(s)" });
+    return;
+  }
+  if (typeof password !== "string" || password.length < 8) {
+    res.status(400).json({ message: "Password must be at least 8 characters" });
     return;
   }
 
   const hash = bcrypt.hashSync(password, 10);
   try {
-    const stmt = db.prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-    const info = stmt.run(email, hash);
-
-    const session = await getIronSession(req, res, sessionOptions);
-    session.user = { id: info.lastInsertRowid as number, email, isAdmin: isAdmin(email) } as User;
-    await session.save();
-
-    res.json({ ok: true });
+    const stmt = db.prepare("INSERT INTO users (email, password, is_admin) VALUES (?, ?, ?)");
+    const info = stmt.run(email, hash, isAdmin ? 1 : 0);
+    res.json({ ok: true, id: info.lastInsertRowid });
   } catch {
     res.status(400).json({ message: "Email already exists" });
   }

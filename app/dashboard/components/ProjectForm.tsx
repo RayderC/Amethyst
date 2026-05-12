@@ -32,6 +32,7 @@ export default function ProjectForm({ initial, projectId }: Props) {
   const [featured, setFeatured] = useState(initial?.featured === 1);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingThumb, setUploadingThumb] = useState(false);
   const [error, setError] = useState("");
 
   function addTag() {
@@ -61,6 +62,24 @@ export default function ProjectForm({ initial, projectId }: Props) {
       }
     }
     setUploading(false);
+    e.target.value = "";
+  }
+
+  async function handleThumbnailUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingThumb(true);
+    setError("");
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: form });
+    if (res.ok) {
+      const { url } = await res.json();
+      setImageUrl(url);
+    } else {
+      setError((await res.json()).message || "Thumbnail upload failed");
+    }
+    setUploadingThumb(false);
     e.target.value = "";
   }
 
@@ -146,8 +165,41 @@ export default function ProjectForm({ initial, projectId }: Props) {
         </div>
       </div>
 
+      {/* Thumbnail */}
+      <div className="form-group">
+        <label className="form-label">Thumbnail</label>
+        <div className="thumbnail-upload">
+          {imageUrl ? (
+            <div className="thumbnail-upload-preview">
+              <img src={imageUrl} alt="Thumbnail" />
+              <button
+                type="button"
+                className="gallery-remove"
+                onClick={() => setImageUrl("")}
+                aria-label="Remove thumbnail"
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <label className={`gallery-upload-add thumbnail-upload-add${uploadingThumb ? " gallery-upload-add--loading" : ""}`}>
+              <span style={{ fontSize: "26px", lineHeight: 1 }}>{uploadingThumb ? "⏳" : "+"}</span>
+              <span>{uploadingThumb ? "Uploading…" : "Upload Thumbnail"}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailUpload}
+                disabled={uploadingThumb}
+                style={{ display: "none" }}
+              />
+            </label>
+          )}
+        </div>
+        <span className="form-hint">Shown on the project card and at the top of the project page. JPG, PNG, GIF, WebP.</span>
+      </div>
+
       {/* URLs */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
         <div className="form-group">
           <label className="form-label">GitHub URL</label>
           <input className="form-input" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/…" />
@@ -155,10 +207,6 @@ export default function ProjectForm({ initial, projectId }: Props) {
         <div className="form-group">
           <label className="form-label">Live URL</label>
           <input className="form-input" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} placeholder="https://…" />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Thumbnail Image URL</label>
-          <input className="form-input" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…/cover.jpg" />
         </div>
       </div>
 

@@ -1,30 +1,13 @@
 services:
   amethyst:
-    build:
-      context: .
-      dockerfile: Dockerfile
     image: amethyst:latest
     container_name: amethyst
-    restart: unless-stopped
+    restart: always
     ports:
-      # host:container — change the left side to expose a different host port
-      - "3000:3000"
-    environment:
-      # REQUIRED: must be at least 32 characters. Generate with:
-      #   openssl rand -base64 48
-      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set (>=32 chars)}
-      NODE_ENV: production
-      DATABASE_PATH: /data/amethyst.db
-      # Set to "false" if you access the app over plain HTTP (no TLS proxy).
-      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
+      # host:container
+      - 3000:3000
     volumes:
-      # SQLite database lives here — point this at any host path you like.
+      # SQLite database
       - ./data:/data
-      # Uploaded images served from /public/uploads.
+      # Uploaded images
       - ./uploads:/app/public/uploads
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/setup').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s

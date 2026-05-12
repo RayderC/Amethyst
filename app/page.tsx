@@ -42,14 +42,6 @@ export default function Home() {
             <Link href="/projects" className="btn btn-primary btn-lg">
               View Projects
             </Link>
-            <a
-              href={siteConfig.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary btn-lg"
-            >
-              GitHub ↗
-            </a>
           </div>
         </div>
       </section>

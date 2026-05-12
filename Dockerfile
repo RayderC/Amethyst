@@ -43,6 +43,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV DATABASE_PATH=/data/amethyst.db
+# Defaults for plain HTTP access on a LAN. Set SESSION_COOKIE_SECURE=true
+# in docker-compose.yml if you put this behind a TLS-terminating proxy.
+ENV SESSION_COOKIE_SECURE=false
 
 # Standalone server, static assets, and public folder.
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

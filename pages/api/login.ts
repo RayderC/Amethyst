@@ -3,6 +3,7 @@ import db from "../../lib/db";
 import bcrypt from "bcryptjs";
 import { getIronSession } from "iron-session";
 import { sessionOptions, User } from "../../lib/session";
+import { isAdmin } from "../../lib/admin";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -16,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
+  const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email) as { id: number; email: string; password: string } | undefined;
   if (!user) {
     res.status(400).json({ message: "User not found" });
     return;
@@ -28,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const session = await getIronSession(req, res, sessionOptions);
-  session.user = { id: user.id, email: user.email } as User;
+  session.user = { id: user.id, email: user.email, isAdmin: isAdmin(user.email) } as User;
   await session.save();
 
   res.json({ ok: true });

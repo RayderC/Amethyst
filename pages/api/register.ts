@@ -3,6 +3,7 @@ import db from "../../lib/db";
 import bcrypt from "bcryptjs";
 import { getIronSession } from "iron-session";
 import { sessionOptions, User } from "../../lib/session";
+import { isAdmin } from "../../lib/admin";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -22,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const info = stmt.run(email, hash);
 
     const session = await getIronSession(req, res, sessionOptions);
-    session.user = { id: info.lastInsertRowid as number, email } as User;
+    session.user = { id: info.lastInsertRowid as number, email, isAdmin: isAdmin(email) } as User;
     await session.save();
 
     res.json({ ok: true });

@@ -1,14 +1,15 @@
-"use client";
-import './globals.css';  // Import the global CSS file
+import './globals.css';
+import type { Metadata } from 'next';
 
-// Define the layout structure
-export default function Layout({ children }: { children: React.ReactNode }) {
+export const metadata: Metadata = {
+  title: 'Amethyst — RayderC',
+  description: 'Portfolio of RayderC — Full-Stack Developer',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <title>Amethyst</title>
-      <body>
-        <div className="rounded-square">{children}</div> {/* This is where your page content will go */}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

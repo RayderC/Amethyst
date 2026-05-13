@@ -62,6 +62,22 @@ db.exec(`
   );
 `)
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS site_config (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL DEFAULT ''
+  );
+`)
+
+export function getSiteConfig(): Record<string, string> {
+  const rows = db.prepare("SELECT key, value FROM site_config").all() as { key: string; value: string }[]
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]))
+}
+
+export function setSiteConfigKey(key: string, value: string) {
+  db.prepare("INSERT OR REPLACE INTO site_config (key, value) VALUES (?, ?)").run(key, value)
+}
+
 export function userCount(): number {
   const row = db.prepare("SELECT COUNT(*) as c FROM users").get() as { c: number }
   return row.c

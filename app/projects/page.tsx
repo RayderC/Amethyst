@@ -31,47 +31,47 @@ export default function ProjectsPage() {
     : projects;
 
   return (
-    <div>
+    <div style={{ minHeight: "100vh" }}>
       <Navigation />
 
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 32px 80px" }}>
-        {/* Header */}
-        <div style={{ marginBottom: "40px" }}>
+      <div className="projects-page-inner">
+        <div className="projects-page-header">
           <p className="section-eyebrow">Portfolio</p>
-          <h1 style={{ fontSize: "clamp(32px,5vw,52px)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "12px" }}>
-            All Projects
-          </h1>
-          <p style={{ fontSize: "16px", color: "var(--text-muted)" }}>
-            {projects.length} project{projects.length !== 1 ? "s" : ""} — things I&apos;ve built and shipped.
+          <h1 className="projects-page-title">All Projects</h1>
+          <p className="projects-page-desc">
+            {loading ? "Loading…" : `${projects.length} project${projects.length !== 1 ? "s" : ""} — things I've built and made.`}
           </p>
         </div>
 
-        {/* Filter */}
         {allTags.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "36px" }}>
+          <div className="filter-row">
             <button
-              className={`skill-chip${!filter ? " active-filter" : ""}`}
-              style={!filter ? { borderColor: "var(--primary-light)", color: "var(--primary-light)", background: "var(--primary-glow)" } : {}}
+              className={`filter-chip${!filter ? " filter-chip--active" : ""}`}
               onClick={() => setFilter("")}
             >
-              All
+              All <span className="filter-chip-count">{projects.length}</span>
             </button>
-            {allTags.map((t) => (
-              <button
-                key={t}
-                className="skill-chip"
-                style={filter === t ? { borderColor: "var(--primary-light)", color: "var(--primary-light)", background: "var(--primary-glow)" } : {}}
-                onClick={() => setFilter(filter === t ? "" : t)}
-              >
-                {t}
-              </button>
-            ))}
+            {allTags.map((t) => {
+              const count = projects.filter((p) => {
+                try { return (JSON.parse(p.tech_stack) as string[]).includes(t); } catch { return false; }
+              }).length;
+              return (
+                <button
+                  key={t}
+                  className={`filter-chip${filter === t ? " filter-chip--active" : ""}`}
+                  onClick={() => setFilter(filter === t ? "" : t)}
+                >
+                  {t} <span className="filter-chip-count">{count}</span>
+                </button>
+              );
+            })}
           </div>
         )}
 
-        {/* Grid */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--text-muted)" }}>Loading…</div>
+          <div className="loading-state">
+            <span className="loading-dot" /><span className="loading-dot" /><span className="loading-dot" />
+          </div>
         ) : visible.length > 0 ? (
           <div className="projects-grid">
             {visible.map((p) => <ProjectCard key={p.id} project={p} />)}
@@ -80,7 +80,7 @@ export default function ProjectsPage() {
           <div className="empty-state">
             <div className="empty-icon">◈</div>
             <p className="empty-title">{filter ? `No projects tagged "${filter}"` : "No projects yet"}</p>
-            <p className="empty-desc">{filter ? "Try clearing the filter." : "Check back soon."}</p>
+            <p className="empty-desc">{filter ? "Try a different filter." : "Check back soon."}</p>
             {filter && (
               <button className="btn btn-secondary btn-sm" onClick={() => setFilter("")}>Clear filter</button>
             )}

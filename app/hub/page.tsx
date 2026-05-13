@@ -44,7 +44,7 @@ export default function HubPage() {
   }
 
   return (
-    <div style={{ background: "radial-gradient(ellipse 80% 60% at 50% -5%, rgba(124,14,179,0.15) 0%, transparent 60%), var(--bg)", minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh" }}>
       <Navigation />
 
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 32px 80px" }}>
@@ -91,7 +91,14 @@ export default function HubPage() {
 
 function ServiceCard({ link }: { link: ServiceLink }) {
   const href = normalizeUrl(link.url);
-  const faviconSrc = `/api/favicon?url=${encodeURIComponent(href)}`;
+  const faviconSrc = link.icon_url || `/api/favicon?url=${encodeURIComponent(href)}`;
+  const letter = link.name.charAt(0).toUpperCase();
+
+  function handleFaviconLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const img = e.currentTarget;
+    // Google returns a 16×16 blank pixel for unknown domains — treat as missing
+    if (img.naturalWidth <= 2) img.style.opacity = "0";
+  }
 
   return (
     <a
@@ -101,14 +108,13 @@ function ServiceCard({ link }: { link: ServiceLink }) {
       className="service-card"
     >
       <div className="service-card-icon">
+        <span className="service-card-letter">{letter}</span>
         <img
           src={faviconSrc}
-          alt={link.name}
-          width={32}
-          height={32}
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
+          alt=""
+          className="service-card-favicon"
+          onLoad={handleFaviconLoad}
+          onError={(e) => { (e.currentTarget).style.opacity = "0"; }}
         />
       </div>
       <div className="service-card-body">

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Navigation from "./components/Navigation";
 import ProjectCard, { type Project } from "./components/ProjectCard";
-import db from "@/lib/db";
-import { siteConfig } from "@/lib/siteConfig";
+import db, { getSiteConfig } from "@/lib/db";
+import { siteConfig as defaults } from "@/lib/siteConfig";
 
 function getFeaturedProjects(): Project[] {
   try {
@@ -16,6 +16,18 @@ function getFeaturedProjects(): Project[] {
 
 export default function Home() {
   const featured = getFeaturedProjects();
+  const raw = getSiteConfig();
+
+  const cfg = {
+    name:       raw.name       || defaults.name,
+    badge:      raw.badge_title || defaults.title,
+    heroLine1:  raw.hero_line1  || "I build, weld,",
+    heroLine2:  raw.hero_line2  || "and fabricate.",
+    bio:        raw.bio        || defaults.bio,
+    skills:     raw.skills     ? (JSON.parse(raw.skills) as string[]) : defaults.skills,
+    email:      raw.email      || defaults.email,
+    github:     raw.github     || defaults.github,
+  };
 
   return (
     <div className="home-bg">
@@ -23,20 +35,21 @@ export default function Home() {
 
       {/* Hero */}
       <section className="hero">
+
         <div className="hero-content">
           <div className="hero-badge">
             <span className="hero-badge-dot" />
-            {siteConfig.title}
+            {cfg.badge}
           </div>
 
           <h1 className="hero-title">
             Hi, I&apos;m{" "}
-            <span className="gradient-text">{siteConfig.name}</span>
-            <span style={{ display: "block" }}>I build, weld,</span>
-            <span style={{ display: "block" }}>and fabricate.</span>
+            <span className="gradient-text">{cfg.name}</span>
+            <span style={{ display: "block" }}>{cfg.heroLine1}</span>
+            <span style={{ display: "block" }}>{cfg.heroLine2}</span>
           </h1>
 
-          <p className="hero-desc">{siteConfig.bio}</p>
+          <p className="hero-desc">{cfg.bio}</p>
 
           <div className="hero-actions">
             <Link href="/projects" className="btn btn-primary btn-lg">
@@ -45,7 +58,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <a href="#about" className="scroll-indicator" aria-label="Scroll down">
           <span className="scroll-indicator-text">Scroll</span>
           <span className="scroll-indicator-arrow">↓</span>
@@ -61,11 +73,11 @@ export default function Home() {
           <div>
             <h2 className="section-title">Who I am</h2>
             <div className="about-text">
-              <p>{siteConfig.bio}</p>
+              <p>{cfg.bio}</p>
               <p style={{ marginTop: "16px" }}>
                 Always working on something new. Reach me at{" "}
-                <a href={`mailto:${siteConfig.email}`} style={{ color: "var(--primary-light)" }}>
-                  {siteConfig.email}
+                <a href={`mailto:${cfg.email}`} style={{ color: "var(--primary-light)" }}>
+                  {cfg.email}
                 </a>
                 .
               </p>
@@ -75,7 +87,7 @@ export default function Home() {
           <div>
             <p className="skills-heading">What I work with</p>
             <div className="skills-wrap">
-              {siteConfig.skills.map((s) => (
+              {cfg.skills.map((s) => (
                 <span key={s} className="skill-chip">{s}</span>
               ))}
             </div>
@@ -119,11 +131,11 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer style={{ borderTop: "1px solid var(--border)", padding: "32px", textAlign: "center" }}>
+      <footer className="site-footer">
         <p style={{ fontSize: "13px", color: "var(--text-subtle)" }}>
           Built by{" "}
-          <a href={siteConfig.github} target="_blank" rel="noopener noreferrer" style={{ color: "var(--primary-light)" }}>
-            {siteConfig.name}
+          <a href={cfg.github} target="_blank" rel="noopener noreferrer" style={{ color: "var(--primary-light)" }}>
+            {cfg.name}
           </a>
         </p>
       </footer>

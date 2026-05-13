@@ -25,14 +25,19 @@ export default function ProjectCard({ project }: { project: Project }) {
   })();
 
   return (
-    <Link href={`/projects/${project.id}`} className="project-card">
-      {project.image_url ? (
-        <img src={project.image_url} alt={project.title} className="project-card-img" />
-      ) : (
-        <div className="project-card-placeholder">
-          <span className="project-card-placeholder-icon">◈</span>
-        </div>
-      )}
+    <Link href={`/projects/${project.id}`} className={`project-card${project.featured === 1 ? " project-card--featured" : ""}`}>
+      <div className="project-card-media">
+        {project.image_url ? (
+          <img src={project.image_url} alt={project.title} className="project-card-img" />
+        ) : (
+          <div className="project-card-placeholder">
+            <span className="project-card-placeholder-icon">◈</span>
+          </div>
+        )}
+        {project.featured === 1 && (
+          <span className="project-card-featured-badge">★ Featured</span>
+        )}
+      </div>
 
       <div className="project-card-body">
         <h3 className="project-card-title">{project.title}</h3>

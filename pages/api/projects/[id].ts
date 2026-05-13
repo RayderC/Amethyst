@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../../lib/db";
 import { getIronSession } from "iron-session";
-import { sessionOptions } from "../../../lib/session";
+import { sessionOptions, User } from "../../../lib/session";
 import type { Project } from "./index";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "PUT") {
-    const session = await getIronSession(req, res, sessionOptions);
+    const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
     if (!session.user?.isAdmin) return res.status(403).json({ message: "Forbidden" });
 
     const { title, description, content, tech_stack, github_url, live_url, image_url, gallery, youtube_url, featured } = req.body;
@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "DELETE") {
-    const session = await getIronSession(req, res, sessionOptions);
+    const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
     if (!session.user?.isAdmin) return res.status(403).json({ message: "Forbidden" });
 
     db.prepare("DELETE FROM projects WHERE id = ?").run(id);

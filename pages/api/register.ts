@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../lib/db";
 import bcrypt from "bcryptjs";
 import { getIronSession } from "iron-session";
-import { sessionOptions } from "../../lib/session";
+import { sessionOptions, User } from "../../lib/session";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const session = await getIronSession(req, res, sessionOptions);
+  const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
   if (!session.user?.isAdmin) {
     res.status(403).json({ message: "Only an administrator may create accounts" });
     return;

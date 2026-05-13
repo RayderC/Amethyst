@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const session = await getIronSession(req, res, sessionOptions);
+  const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
   session.user = { id: user.id, email: user.email, isAdmin: user.is_admin === 1 } as User;
   await session.save();
 

@@ -12,9 +12,9 @@ export default function CircuitBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current as HTMLCanvasElement;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     if (!ctx) return;
 
     let raf: number;
@@ -22,12 +22,12 @@ export default function CircuitBackground() {
     let nodes: Node[] = [];
     const pulses: Pulse[] = [];
 
-    function build() {
+    function build(cv: typeof canvas) {
       lines = [];
       nodes = [];
 
-      const cols = Math.ceil(canvas.width / GRID) + 2;
-      const rows = Math.ceil(canvas.height / GRID) + 2;
+      const cols = Math.ceil(cv.width / GRID) + 2;
+      const rows = Math.ceil(cv.height / GRID) + 2;
 
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols - 1; c++) {
@@ -66,7 +66,7 @@ export default function CircuitBackground() {
     function resize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      build();
+      build(canvas);
     }
 
     resize();

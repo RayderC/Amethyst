@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../../lib/db";
 import { getIronSession } from "iron-session";
-import { sessionOptions } from "../../../lib/session";
+import { sessionOptions, User } from "../../../lib/session";
 import { normalizeUrl } from "../../../lib/url";
 
 export type ServiceLink = {
@@ -16,7 +16,7 @@ export type ServiceLink = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getIronSession(req, res, sessionOptions);
+  const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
 
   // All methods require admin
   if (!session.user?.isAdmin) {

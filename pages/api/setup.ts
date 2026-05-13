@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const stmt = db.prepare("INSERT INTO users (email, password, is_admin) VALUES (?, ?, 1)");
   const info = stmt.run(email, hash);
 
-  const session = await getIronSession(req, res, sessionOptions);
+  const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
   session.user = { id: info.lastInsertRowid as number, email, isAdmin: true } as User;
   await session.save();
 

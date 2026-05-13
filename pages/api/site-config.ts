@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getIronSession } from "iron-session";
-import { sessionOptions } from "../../lib/session";
+import { sessionOptions, User } from "../../lib/session";
 import { getSiteConfig, setSiteConfigKey } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "PUT") {
-    const session = await getIronSession(req, res, sessionOptions);
+    const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
     if (!session.user?.isAdmin) return res.status(403).json({ message: "Forbidden" });
 
     const { name, badge_title, hero_line1, hero_line2, bio, skills, email, github } = req.body;

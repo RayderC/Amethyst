@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
-import { sessionOptions } from "@/lib/session";
+import { sessionOptions, type User } from "@/lib/session";
 import fs from "fs";
 import path from "path";
 import { randomBytes } from "crypto";
 
+type SessionData = { user?: User };
+
 export async function POST(req: NextRequest) {
-  const session = await getIronSession(await cookies(), sessionOptions);
+  const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
   if (!session.user?.isAdmin) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }

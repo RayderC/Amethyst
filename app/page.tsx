@@ -140,6 +140,7 @@ export default function Home() {
             {cfg.name}
           </a>
         </p>
+        <Link href="/login" className="footer-login-link">Admin</Link>
       </footer>
     </div>
   );

@@ -8,6 +8,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname() ?? "";
   const router = useRouter();
   const [checking, setChecking] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/user")
@@ -18,6 +19,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       })
       .catch(() => router.replace("/login"));
   }, [router]);
+
+  // Close drawer on route change
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
@@ -42,10 +46,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="dashboard-root">
+      {/* Mobile top bar */}
+      <div className="dash-mobile-bar">
+        <button className="dash-hamburger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+          <span /><span /><span />
+        </button>
+        <span className="dash-mobile-title">Dashboard</span>
+      </div>
+
+      {/* Backdrop */}
+      {menuOpen && <div className="dash-backdrop" onClick={() => setMenuOpen(false)} />}
+
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar${menuOpen ? " sidebar-open" : ""}`}>
         <div className="sidebar-logo-wrap">
-          <Link href="/" className="sidebar-logo">Amethyst</Link>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <Link href="/" className="sidebar-logo">Amethyst</Link>
+            <button className="sidebar-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">✕</button>
+          </div>
           <span className="sidebar-tag">Admin Dashboard</span>
         </div>
 

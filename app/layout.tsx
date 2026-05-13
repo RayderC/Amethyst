@@ -5,6 +5,14 @@ import CircuitBackground from './components/CircuitBackground';
 export const metadata: Metadata = {
   title: 'RayderC — Maker & Fabricator',
   description: 'Portfolio of RayderC — Welding, fabrication, CAD, 3D printing, and custom builds.',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'RayderC',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

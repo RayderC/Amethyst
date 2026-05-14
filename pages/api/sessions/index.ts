@@ -18,8 +18,8 @@ export type ServiceLink = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
 
-  // All methods require admin
-  if (!session.user?.isAdmin) {
+  // GET is available to any logged-in user; write operations require admin
+  if (!session.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
@@ -31,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "POST") {
+    if (!session.user.isAdmin) return res.status(403).json({ message: "Forbidden" });
     const { name, url, description, category, icon_url, sort_order } = req.body;
     if (!name || !url) return res.status(400).json({ message: "Name and URL are required" });
 

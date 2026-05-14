@@ -30,8 +30,12 @@ export default function Login() {
       headers: { "Content-Type": "application/json" },
     });
     setLoading(false);
-    if (res.ok) router.push("/dashboard");
-    else setError((await res.json()).message || "Login failed");
+    if (res.ok) {
+      const user = await fetch("/api/user").then((r) => (r.ok ? r.json() : null));
+      router.push(user?.isAdmin ? "/dashboard" : "/hub");
+    } else {
+      setError((await res.json()).message || "Login failed");
+    }
   }
 
   return (

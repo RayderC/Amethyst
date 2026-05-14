@@ -15,11 +15,10 @@ export default function HubPage() {
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
-    // Check admin access
     fetch("/api/user")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!data?.isAdmin) { router.replace("/login"); return; }
+        if (!data) { router.replace("/login"); return; }
         setAuthed(true);
         return fetch("/api/sessions");
       })
@@ -50,12 +49,12 @@ export default function HubPage() {
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 32px 80px" }}>
         {/* Header */}
         <div style={{ marginBottom: "56px" }}>
-          <p className="section-eyebrow">Admin</p>
+          <p className="section-eyebrow">Services</p>
           <h1 style={{ fontSize: "clamp(32px,5vw,52px)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "12px" }}>
             Hub
           </h1>
           <p style={{ fontSize: "16px", color: "var(--text-muted)", maxWidth: "520px" }}>
-            Your private gateway to self-hosted services and tools.
+            A private gateway to self-hosted services and tools.
           </p>
         </div>
 

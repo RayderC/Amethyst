@@ -7,11 +7,15 @@ import { useEffect, useState } from "react";
 export default function Navigation() {
   const pathname = usePathname() ?? "";
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     fetch("/api/user")
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data?.isAdmin) setIsAdmin(true); })
+      .then((data) => {
+        if (data) { setIsLoggedIn(true); }
+        if (data?.isAdmin) setIsAdmin(true);
+      })
       .catch(() => {});
   }, []);
 
@@ -23,7 +27,7 @@ export default function Navigation() {
         <div className="nav-links">
           <Link href="/" className={`nav-link${pathname === "/" ? " active" : ""}`}>Home</Link>
           <Link href="/projects" className={`nav-link${pathname.startsWith("/projects") ? " active" : ""}`}>Projects</Link>
-          {isAdmin && (
+          {isLoggedIn && (
             <Link href="/hub" className={`nav-link${pathname.startsWith("/hub") ? " active" : ""}`}>Hub</Link>
           )}
           {isAdmin && (

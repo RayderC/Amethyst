@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import Navigation from "./components/Navigation";
 import ProjectCard, { type Project } from "./components/ProjectCard";
+import FooterAuth from "./components/FooterAuth";
 import db, { getSiteConfig } from "@/lib/db";
 import { siteConfig as defaults } from "@/lib/siteConfig";
 
@@ -140,7 +141,7 @@ export default function Home() {
             {cfg.name}
           </a>
         </p>
-        <Link href="/login" className="footer-login-link">Admin</Link>
+        <FooterAuth />
       </footer>
     </div>
   );

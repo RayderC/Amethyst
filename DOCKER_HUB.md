@@ -39,20 +39,32 @@ services:
 docker compose up -d
 ```
 
-That's it — no environment variables required. A session secret is auto-generated on first start.
+No environment variables required. A session secret is auto-generated on first start.
 
 ---
 
 ## Features
 
-- **Animated cyberpunk UI** — circuit board background with live data pulses, neon glows, scan effects
+- **Animated cyberpunk UI** — circuit board background, neon glows, scan effects
 - **Project pages** — thumbnail, photo gallery, YouTube embed, full markdown description
 - **Photo uploads** — drag-and-drop gallery uploads stored on your own server
 - **Tag filtering** — filter projects by material or skill on the public projects page
 - **Editable home page** — change your name, bio, hero text, and skills from the dashboard
-- **Hub page** — private bookmark page for self-hosted services (Jellyfin, Nextcloud, etc.)
-- **Admin dashboard** — create, edit, delete projects; manage users
+- **Hub page** — private bookmark page for self-hosted services with auto-fetched favicons
+- **Role-based access** — admins control the dashboard; regular users get Hub access only
+- **Admin dashboard** — create, edit, delete projects; manage users and hub links
 - **No external dependencies** — SQLite database, local file storage, no accounts needed
+- **Multi-platform image** — runs on `linux/amd64` and `linux/arm64`
+
+---
+
+## Access Levels
+
+| Page | Public | Logged-in User | Admin |
+|---|---|---|---|
+| Home, Projects | ✓ | ✓ | ✓ |
+| Hub | — | ✓ | ✓ |
+| Dashboard | — | — | ✓ |
 
 ---
 

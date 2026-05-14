@@ -1,44 +1,148 @@
 # Amethyst
 
-A personal portfolio site built to showcase projects, fabrication work, and builds. Features a cyberpunk-styled public frontend and a private admin dashboard for managing all content.
+A self-hosted personal portfolio built for makers, welders, and fabricators. Post your projects with photos, YouTube embeds, and full markdown writeups. Everything is managed through a private admin dashboard — no external CMS, no cloud accounts, no subscriptions.
 
 ---
 
 ## Features
 
-**Public Site**
-- Home page with editable hero, bio, and skills section
-- Project gallery with tag-based filtering
-- Full project detail pages — markdown descriptions, photo galleries, YouTube embeds
-- Animated circuit board background with glowing data pulses
-- Fully responsive
+### Public Site
+- **Home page** — Editable hero, bio, and skills section. All content is changed from the dashboard with no code edits required.
+- **Projects** — Full project list with tag-based filtering. Each project supports a thumbnail, photo gallery, YouTube embed, and a complete markdown writeup.
+- **Hub** — A private bookmarks page for self-hosted services (Jellyfin, Nextcloud, Plex, Portainer, etc.) with auto-fetched favicons. Visible to any logged-in user.
+- **Animated cyberpunk UI** — Circuit board background, neon glows, scan effects, and a glitch animation on the hero title.
+- **Fully responsive** — Works on desktop and mobile. The admin dashboard has a slide-out drawer on small screens.
 
-**Admin Dashboard** *(password protected — access via `/login`)*
-- Create, edit, and delete projects
-- Upload photos directly (no external hosting needed)
-- Edit home page content — name, bio, hero text, skills, links
-- Manage the Hub (private links to self-hosted services)
-- User management
+### Admin Dashboard
+- **Projects** — Create, edit, and delete projects. Upload thumbnail and gallery photos directly (no external hosting needed). YouTube URL auto-parses into an embed.
+- **Home Page Editor** — Change your name, badge text, hero lines, bio, skills list, email, and GitHub link. Updates the live site instantly.
+- **Hub Manager** — Add, edit, and reorder links to self-hosted services. Favicon is auto-fetched from the service URL.
+- **Users** — Create additional accounts (admin or regular user). Only admins can access the dashboard; regular users can only access the Hub.
+
+### Access Levels
+| Page | Public | Logged-in User | Admin |
+|---|---|---|---|
+| Home, Projects | ✓ | ✓ | ✓ |
+| Hub | — | ✓ | ✓ |
+| Dashboard | — | — | ✓ |
 
 ---
 
-## Tech Stack
+## Quick Start with Docker
 
-| Layer | Technology |
+The recommended way to run Amethyst. No environment variables required.
+
+```bash
+docker run -d \
+  --name amethyst \
+  --restart always \
+  -p 3000:3000 \
+  -v amethyst-data:/data \
+  -v amethyst-uploads:/app/public/uploads \
+  rayderc/amethyst:latest
+```
+
+Then open `http://your-server:3000/setup` to create your admin account.
+
+---
+
+## Docker Compose
+
+```yaml
+services:
+  amethyst:
+    image: rayderc/amethyst:latest
+    container_name: amethyst
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./data:/data
+      - ./uploads:/app/public/uploads
+```
+
+```bash
+docker compose up -d
+```
+
+---
+
+## Environment Variables
+
+All variables are optional. The app runs out of the box with no configuration.
+
+| Variable | Default | Description |
+|---|---|---|
+| `SESSION_SECRET` | auto-generated | Cookie encryption key (min 32 chars). **Recommended in production** — keeps sessions alive across container restarts. |
+| `DATABASE_PATH` | `/data/amethyst.db` | Path to the SQLite database inside the container. |
+| `SESSION_COOKIE_SECURE` | `false` | Set to `true` when running behind a TLS-terminating reverse proxy (HTTPS). |
+
+### Example with fixed session secret
+
+```yaml
+services:
+  amethyst:
+    image: rayderc/amethyst:latest
+    container_name: amethyst
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - SESSION_SECRET=your_random_secret_string_at_least_32_chars
+      - SESSION_COOKIE_SECURE=true
+    volumes:
+      - ./data:/data
+      - ./uploads:/app/public/uploads
+```
+
+---
+
+## Volumes
+
+| Path | Contains |
 |---|---|
-| Framework | [Next.js 16](https://nextjs.org/) (App Router + Pages API) |
-| Language | TypeScript 5 |
-| Database | SQLite via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) |
-| Auth | [iron-session](https://github.com/vvo/iron-session) (encrypted cookie sessions) |
-| Markdown | [react-markdown](https://github.com/remarkjs/react-markdown) + remark-gfm |
-| Styling | Custom CSS (no Tailwind classes in markup) |
-| Container | Docker + Docker Compose |
+| `/data` | SQLite database (`amethyst.db`) |
+| `/app/public/uploads` | Uploaded images, served at `/uploads/*` |
+
+Mount both as volumes so data survives container updates.
+
+---
+
+## Reverse Proxy (NGINX)
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name portfolio.example.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Set `SESSION_COOKIE_SECURE=true` when running behind HTTPS.
+
+---
+
+## Updating
+
+```bash
+docker pull rayderc/amethyst:latest
+docker compose down && docker compose up -d
+```
+
+Database and uploads are preserved in volumes — nothing is lost on update.
 
 ---
 
 ## Running Locally
 
-**Prerequisites:** Node.js 18+, npm
+**Prerequisites:** Node.js 20+, npm
 
 ```bash
 git clone https://github.com/RayderC/Amethyst.git
@@ -47,49 +151,33 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-On first run, navigate to `/setup` to create your admin account.
+Open [http://localhost:3000](http://localhost:3000), then navigate to `/setup` to create your admin account.
 
 ---
 
-## Running with Docker
+## First-Time Setup
 
-The easiest way to self-host. No environment variables required — a session secret is auto-generated on first start.
-
-```bash
-# Build the image
-docker build -t amethyst:latest .
-
-# Start with docker compose
-docker compose up -d
-```
-
-The site runs on port `3000`. Data and uploaded images are persisted in local volumes:
-
-```
-./data/      ← SQLite database
-./uploads/   ← Uploaded images (served at /uploads/*)
-```
-
-To update after pulling new code:
-
-```bash
-docker build -t amethyst:latest .
-docker compose down && docker compose up -d
-```
+1. Start the app (Docker or `npm run dev`)
+2. Go to `/setup` — create your admin account (only works before any user exists)
+3. Log in at `/login`
+4. **Dashboard → Home Page** — set your name, bio, hero text, and skills
+5. **Dashboard → Projects → New Project** — add your first project
+6. Toggle **"Feature on home page"** to show it on the front page
+7. **Dashboard → Hub** — add links to your self-hosted services
 
 ---
 
-## Environment Variables
+## Tech Stack
 
-All variables are optional — the app runs without any configuration.
-
-| Variable | Default | Description |
-|---|---|---|
-| `SESSION_SECRET` | auto-generated | Cookie encryption key (min 32 chars). Set this in production to keep sessions across restarts. |
-| `DATABASE_PATH` | `./amethyst.db` | Path to the SQLite database file |
-| `SESSION_COOKIE_SECURE` | `true` in production | Set to `false` if running without HTTPS |
+| Layer | Technology |
+|---|---|
+| Framework | [Next.js 16](https://nextjs.org/) (App Router + Pages API Routes) |
+| Language | TypeScript 5 |
+| Database | SQLite via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) |
+| Auth | [iron-session](https://github.com/vvo/iron-session) (encrypted cookie sessions) |
+| Markdown | [react-markdown](https://github.com/remarkjs/react-markdown) + remark-gfm |
+| Styling | Custom CSS with CSS custom properties |
+| Container | Docker (multi-platform: `linux/amd64`, `linux/arm64`) |
 
 ---
 
@@ -97,38 +185,30 @@ All variables are optional — the app runs without any configuration.
 
 ```
 app/
-  components/       → Shared UI (Navigation, ProjectCard, MarkdownEditor, CircuitBackground)
-  dashboard/        → Admin pages (projects, home editor, hub, users)
-  projects/         → Public project list and detail pages
-  hub/              → Private service links page
-  page.tsx          → Home page (reads config from DB)
-  layout.tsx        → Root layout (circuit canvas, metadata)
+  components/        Shared UI — Navigation, ProjectCard, MarkdownEditor,
+                     CircuitBackground, FooterAuth
+  dashboard/         Protected admin pages — projects, home editor, hub, users
+  hub/               Private service links page (any logged-in user)
+  projects/          Public project list and detail pages
+  page.tsx           Home page (server-rendered, reads config from DB)
+  layout.tsx         Root layout — circuit canvas, dynamic metadata
 
-pages/api/          → All API routes (Next.js Pages Router)
-  projects/         → CRUD for projects
-  site-config.ts    → Home page content API
-  upload.ts         → Image upload handler
-  sessions/         → Hub service links
-  login/logout/user → Auth
+pages/api/           API routes (Next.js Pages Router)
+  login / logout / user / register / setup
+  projects/          CRUD for portfolio projects
+  sessions/          CRUD for hub service links
+  site-config        Home page content
+  users/             User management
+  favicon            Favicon proxy (direct fetch → Google fallback)
 
 lib/
-  db.ts             → SQLite connection and migrations
-  session.ts        → iron-session config
-  siteConfig.ts     → Default site content (overridden by DB)
+  db.ts              SQLite connection, schema migrations, helpers
+  session.ts         iron-session config
+  siteConfig.ts      Default site content (overridden by DB values)
+  url.ts             URL normalization helpers
 
-public/uploads/     → Uploaded images (gitignored)
+public/uploads/      Uploaded images (gitignored, mounted as Docker volume)
 ```
-
----
-
-## First-Time Setup
-
-1. Start the app (`npm run dev` or Docker)
-2. Go to `/setup` — create your admin account
-3. Log in at `/login`
-4. Go to **Dashboard → Home Page** to set your name, bio, hero text, and skills
-5. Go to **Dashboard → Projects** to add your first project
-6. Toggle "Feature on home page" on projects you want shown on the front page
 
 ---
 

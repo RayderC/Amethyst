@@ -43,3 +43,9 @@ next-env.d.ts
 
 
 amethyst.db
+
+# uploaded images
+/public/uploads/
+
+# Claude Code
+.claude/

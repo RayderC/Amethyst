@@ -15,5 +15,5 @@ export const siteConfig = {
     "Sheet Metal",
   ],
   github: "https://github.com/RayderC",
-  email: "rayder.chance@gmail.com",
+  email: "dev@rayder.xyz",
 };

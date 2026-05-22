@@ -1,6 +1,6 @@
 import { SessionOptions } from "iron-session";
 
-export type User = { id: number; email: string; isAdmin?: boolean };
+export type User = { id: number; username: string; isAdmin?: boolean };
 
 declare module "iron-session" {
   interface IronSessionData {

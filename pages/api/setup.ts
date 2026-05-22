@@ -20,8 +20,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const { email, password } = req.body;
-  if (!email || !password) {
+  const { username, password } = req.body;
+  if (!username || !password) {
     res.status(400).json({ message: "Missing field(s)" });
     return;
   }
@@ -31,11 +31,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const hash = bcrypt.hashSync(password, 10);
-  const stmt = db.prepare("INSERT INTO users (email, password, is_admin) VALUES (?, ?, 1)");
-  const info = stmt.run(email, hash);
+  const stmt = db.prepare("INSERT INTO users (username, password, is_admin) VALUES (?, ?, 1)");
+  const info = stmt.run(username.trim().toLowerCase(), hash);
 
   const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
-  session.user = { id: info.lastInsertRowid as number, email, isAdmin: true } as User;
+  session.user = { id: info.lastInsertRowid as number, username: username.trim().toLowerCase(), isAdmin: true } as User;
   await session.save();
 
   res.json({ ok: true });

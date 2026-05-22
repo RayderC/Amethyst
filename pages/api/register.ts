@@ -16,8 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const { email, password, isAdmin } = req.body;
-  if (!email || !password) {
+  const { username, password, isAdmin } = req.body;
+  if (!username || !password) {
     res.status(400).json({ message: "Missing field(s)" });
     return;
   }
@@ -28,10 +28,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const hash = bcrypt.hashSync(password, 10);
   try {
-    const stmt = db.prepare("INSERT INTO users (email, password, is_admin) VALUES (?, ?, ?)");
-    const info = stmt.run(email, hash, isAdmin ? 1 : 0);
+    const stmt = db.prepare("INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)");
+    const info = stmt.run(username.trim().toLowerCase(), hash, isAdmin ? 1 : 0);
     res.json({ ok: true, id: info.lastInsertRowid });
   } catch {
-    res.status(400).json({ message: "Email already exists" });
+    res.status(400).json({ message: "Username already exists" });
   }
 }

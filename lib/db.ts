@@ -10,7 +10,7 @@ const db = new Database(dbPath)
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     is_admin INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -40,6 +40,10 @@ try {
 try {
   db.exec(`ALTER TABLE projects ADD COLUMN youtube_url TEXT NOT NULL DEFAULT ''`)
 } catch { /* column already exists */ }
+
+try {
+  db.exec(`ALTER TABLE users RENAME COLUMN email TO username`)
+} catch { /* already renamed or column doesn't exist */ }
 
 try {
   db.exec(`ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0`)

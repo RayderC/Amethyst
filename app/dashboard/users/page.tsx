@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type AdminUser = {
   id: number;
-  email: string;
+  username: string;
   is_admin: number;
   created_at: string;
 };
@@ -32,14 +32,14 @@ export default function UsersPage() {
     setSuccess("");
     setCreating(true);
     const form = e.currentTarget as HTMLFormElement & {
-      email: { value: string };
+      username: { value: string };
       password: { value: string };
       isAdmin: { checked: boolean };
     };
     const res = await fetch("/api/register", {
       method: "POST",
       body: JSON.stringify({
-        email: form.email.value.trim(),
+        username: form.username.value.trim().toLowerCase(),
         password: form.password.value,
         isAdmin: form.isAdmin.checked,
       }),
@@ -47,7 +47,7 @@ export default function UsersPage() {
     });
     setCreating(false);
     if (res.ok) {
-      setSuccess(`Created account for ${form.email.value.trim()}`);
+      setSuccess(`Created account for ${form.username.value.trim()}`);
       form.reset();
       load();
     } else {
@@ -55,8 +55,8 @@ export default function UsersPage() {
     }
   }
 
-  async function handleDelete(id: number, email: string) {
-    if (!confirm(`Delete account "${email}"? This cannot be undone.`)) return;
+  async function handleDelete(id: number, username: string) {
+    if (!confirm(`Delete account "${username}"? This cannot be undone.`)) return;
     const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
     if (res.ok) load();
     else setError((await res.json()).message || "Failed to delete user");
@@ -78,8 +78,8 @@ export default function UsersPage() {
           {success && <p style={{ color: "var(--success, #4ade80)", fontSize: "13px" }}>{success}</p>}
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Email</label>
-            <input type="email" id="email" name="email" className="form-input" placeholder="user@example.com" required />
+            <label className="form-label" htmlFor="username">Username</label>
+            <input type="text" id="username" name="username" className="form-input" placeholder="newuser" autoComplete="off" required />
           </div>
 
           <div className="form-group">
@@ -105,7 +105,7 @@ export default function UsersPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Email</th>
+                <th>Username</th>
                 <th>Role</th>
                 <th>Created</th>
                 <th style={{ width: "120px" }}>Actions</th>
@@ -114,7 +114,7 @@ export default function UsersPage() {
             <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td style={{ color: "var(--text)", fontWeight: 600 }}>{u.email}</td>
+                  <td style={{ color: "var(--text)", fontWeight: 600 }}>{u.username}</td>
                   <td>
                     {u.is_admin === 1
                       ? <span className="badge badge-green">Admin</span>
@@ -126,7 +126,7 @@ export default function UsersPage() {
                   <td>
                     <button
                       className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(u.id, u.email)}
+                      onClick={() => handleDelete(u.id, u.username)}
                     >
                       Delete
                     </button>

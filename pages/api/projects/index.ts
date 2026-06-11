@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../../lib/db";
 import { getIronSession } from "iron-session";
 import { sessionOptions, User } from "../../../lib/session";
+import { checkCsrf } from "../../../lib/csrf";
 
 export type Project = {
   id: number;
@@ -46,6 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "POST") {
+    if (!checkCsrf(req)) return res.status(403).json({ message: "Forbidden" });
     const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
     if (!session.user?.isAdmin) {
       return res.status(403).json({ message: "Forbidden" });

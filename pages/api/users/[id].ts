@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import db, { adminCount } from "../../../lib/db";
 import { getIronSession } from "iron-session";
 import { sessionOptions, User } from "../../../lib/session";
+import { checkCsrf } from "../../../lib/csrf";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
@@ -17,6 +18,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "DELETE") {
+    if (!checkCsrf(req)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
     const target = db.prepare("SELECT is_admin FROM users WHERE id = ?").get(id) as { is_admin: number } | undefined;
     if (!target) {
       res.status(404).json({ message: "User not found" });

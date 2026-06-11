@@ -9,6 +9,20 @@ import { randomBytes } from "crypto";
 type SessionData = { user?: User };
 
 export async function POST(req: NextRequest) {
+  // CSRF: if Origin header is present it must match the Host header
+  const origin = req.headers.get("origin");
+  const host = req.headers.get("host");
+  if (origin) {
+    try {
+      const parsed = new URL(origin);
+      if (parsed.host !== host) {
+        return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+      }
+    } catch {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+  }
+
   const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
   if (!session.user?.isAdmin) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });

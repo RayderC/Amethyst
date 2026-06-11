@@ -3,6 +3,7 @@ import db from "../../../lib/db";
 import { getIronSession } from "iron-session";
 import { sessionOptions, User } from "../../../lib/session";
 import { normalizeUrl } from "../../../lib/url";
+import { checkCsrf } from "../../../lib/csrf";
 
 export type ServiceLink = {
   id: number;
@@ -31,6 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "POST") {
+    if (!checkCsrf(req)) return res.status(403).json({ message: "Forbidden" });
     if (!session.user.isAdmin) return res.status(403).json({ message: "Forbidden" });
     const { name, url, description, category, icon_url, sort_order } = req.body;
     if (!name || !url) return res.status(400).json({ message: "Name and URL are required" });

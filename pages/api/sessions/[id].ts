@@ -3,6 +3,7 @@ import db from "../../../lib/db";
 import { getIronSession } from "iron-session";
 import { sessionOptions, User } from "../../../lib/session";
 import { normalizeUrl } from "../../../lib/url";
+import { checkCsrf } from "../../../lib/csrf";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
@@ -12,6 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (isNaN(id)) return res.status(400).json({ message: "Invalid id" });
 
   if (req.method === "PUT") {
+    if (!checkCsrf(req)) return res.status(403).json({ message: "Forbidden" });
     const { name, url, description, category, icon_url, sort_order } = req.body;
     if (!name || !url) return res.status(400).json({ message: "Name and URL are required" });
 
@@ -33,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "DELETE") {
+    if (!checkCsrf(req)) return res.status(403).json({ message: "Forbidden" });
     db.prepare("DELETE FROM service_links WHERE id = ?").run(id);
     return res.json({ ok: true });
   }

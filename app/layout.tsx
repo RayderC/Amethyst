@@ -1,8 +1,14 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import CircuitBackground from './components/CircuitBackground';
 import { getSiteConfig } from '@/lib/db';
 import { siteConfig as defaults } from '@/lib/siteConfig';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const raw = getSiteConfig();
@@ -13,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${name} — ${badge}`,
     description: bio,
-    manifest: '/manifest.json',
+    manifest: '/manifest.webmanifest',
     icons: {
       icon: '/favicon.png',
       apple: '/icons/apple-touch-icon-180x180.png',

@@ -3,7 +3,13 @@ set -e
 
 SECRET_FILE=/data/.session_secret
 
-mkdir -p /data /app/public/uploads
+# Starts as root only to make the data folders writable, since a bind-mounted folder is usually
+# owned by root. The app itself then runs as the unprivileged node user.
+if [ "$(id -u)" = "0" ]; then
+  mkdir -p /data /app/public/uploads
+  find /data /app/public/uploads ! -user node -exec chown node:node {} + || echo "Warning: couldn't take ownership of the data folders" >&2
+  exec setpriv --reuid=node --regid=node --init-groups "$0" "$@"
+fi
 
 if [ -z "${SESSION_SECRET:-}" ]; then
   if [ ! -s "$SECRET_FILE" ]; then

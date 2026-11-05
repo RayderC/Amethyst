@@ -1,44 +1,56 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../lib/db";
 import bcrypt from "bcryptjs";
-import { getIronSession } from "iron-session";
-import { sessionOptions, User } from "../../lib/session";
+import { getApiSession } from "../../lib/auth";
+import { checkCsrf } from "../../lib/csrf";
+import { clientIp } from "../../lib/clientIp";
 import { checkRateLimit } from "../../lib/rateLimit";
+
+// Compared against when the username doesn't exist, so a miss takes as long as a wrong password.
+const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
+const TOO_MANY = "Too many login attempts — try again in a minute";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     res.status(405).end();
     return;
   }
-
-  const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? "unknown";
-  if (!checkRateLimit(`login:${ip}`, 10, 60_000)) {
-    res.status(429).json({ message: "Too many login attempts — try again in a minute" });
+  if (!checkCsrf(req)) {
+    res.status(403).json({ message: "Forbidden" });
     return;
   }
 
-  const { username, password } = req.body;
-  if (!username || !password) {
+  if (!checkRateLimit(`login:${clientIp(req)}`, 10, 60_000)) {
+    res.status(429).json({ message: TOO_MANY });
+    return;
+  }
+
+  const { username, password } = req.body ?? {};
+  if (typeof username !== "string" || typeof password !== "string" || !username || !password) {
     res.status(400).json({ message: "Missing field(s)" });
+    return;
+  }
+
+  // Accounts are always stored lowercase, so "Admin" and "admin" should sign in the same.
+  const name = username.trim().toLowerCase();
+  // A per-account limit too, so guessing one password from many addresses still gets slowed down.
+  if (!checkRateLimit(`login-user:${name}`, 30, 10 * 60_000)) {
+    res.status(429).json({ message: TOO_MANY });
     return;
   }
 
   const user = db
     .prepare("SELECT id, username, password, is_admin FROM users WHERE username = ?")
-    .get(username) as { id: number; username: string; password: string; is_admin: number } | undefined;
+    .get(name) as { id: number; username: string; password: string; is_admin: number } | undefined;
 
-  if (!user) {
+  const matches = await bcrypt.compare(password, user?.password ?? DUMMY_HASH);
+  if (!user || !matches) {
     res.status(400).json({ message: "Invalid credentials" });
     return;
   }
 
-  if (!bcrypt.compareSync(password, user.password)) {
-    res.status(400).json({ message: "Invalid credentials" });
-    return;
-  }
-
-  const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
-  session.user = { id: user.id, username: user.username, isAdmin: user.is_admin === 1 } as User;
+  const session = await getApiSession(req, res);
+  session.user = { id: user.id, username: user.username, isAdmin: user.is_admin === 1 };
   await session.save();
 
   res.json({ ok: true });

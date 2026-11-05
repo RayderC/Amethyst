@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../../lib/db";
-import { getIronSession } from "iron-session";
-import { sessionOptions, User } from "../../../lib/session";
-import type { Project } from "./index";
+import { getApiSession } from "../../../lib/auth";
+import { checkCsrf } from "../../../lib/csrf";
+import { cleanProject, type Project } from "./index";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
+  const id = Number(req.query.id);
+  if (!Number.isInteger(id)) return res.status(400).json({ message: "Invalid id" });
 
   if (req.method === "GET") {
     const project = db.prepare("SELECT * FROM projects WHERE id = ?").get(id) as Project | undefined;
@@ -14,11 +15,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === "PUT") {
-    const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
+    if (!checkCsrf(req)) return res.status(403).json({ message: "Forbidden" });
+    const session = await getApiSession(req, res);
     if (!session.user?.isAdmin) return res.status(403).json({ message: "Forbidden" });
 
-    const { title, description, content, tech_stack, github_url, live_url, image_url, gallery, youtube_url, featured } = req.body;
-    if (!title) return res.status(400).json({ message: "Title is required" });
+    const p = cleanProject(req.body ?? {});
+    if (typeof p === "string") return res.status(400).json({ message: p });
 
     db.prepare(`
       UPDATE projects
@@ -26,26 +28,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           github_url = ?, live_url = ?, image_url = ?, gallery = ?, youtube_url = ?, featured = ?,
           updated_at = datetime('now')
       WHERE id = ?
-    `).run(
-      title,
-      description || "",
-      content || "",
-      JSON.stringify(tech_stack || []),
-      github_url || "",
-      live_url || "",
-      image_url || "",
-      JSON.stringify(gallery || []),
-      youtube_url || "",
-      featured ? 1 : 0,
-      id
-    );
+    `).run(p.title, p.description, p.content, p.tech_stack, p.github_url, p.live_url, p.image_url, p.gallery, p.youtube_url, p.featured, id);
 
     const project = db.prepare("SELECT * FROM projects WHERE id = ?").get(id) as Project;
     return res.json(project);
   }
 
   if (req.method === "DELETE") {
-    const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
+    if (!checkCsrf(req)) return res.status(403).json({ message: "Forbidden" });
+    const session = await getApiSession(req, res);
     if (!session.user?.isAdmin) return res.status(403).json({ message: "Forbidden" });
 
     db.prepare("DELETE FROM projects WHERE id = ?").run(id);

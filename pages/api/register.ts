@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import db from "../../lib/db";
 import bcrypt from "bcryptjs";
-import { getIronSession } from "iron-session";
-import { sessionOptions, User } from "../../lib/session";
+import { getApiSession } from "../../lib/auth";
+import { checkCsrf } from "../../lib/csrf";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -10,19 +10,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const session = await getIronSession<{ user?: User }>(req, res, sessionOptions);
+  if (!checkCsrf(req)) {
+    res.status(403).json({ message: "Forbidden" });
+    return;
+  }
+  const session = await getApiSession(req, res);
   if (!session.user?.isAdmin) {
     res.status(403).json({ message: "Only an administrator may create accounts" });
     return;
   }
 
-  const { username, password, isAdmin } = req.body;
-  if (!username || !password) {
+  const { username, password, isAdmin } = req.body ?? {};
+  if (typeof username !== "string" || !username.trim() || !password) {
     res.status(400).json({ message: "Missing field(s)" });
     return;
   }
-  if (typeof password !== "string" || password.length < 8) {
-    res.status(400).json({ message: "Password must be at least 8 characters" });
+  if (username.trim().length > 50) {
+    res.status(400).json({ message: "Username must be 50 characters or fewer" });
+    return;
+  }
+  if (typeof password !== "string" || password.length < 8 || password.length > 72) {
+    res.status(400).json({ message: "Password must be 8–72 characters" });
     return;
   }
 

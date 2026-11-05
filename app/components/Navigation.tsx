@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { siteConfig as defaults } from "../../lib/siteConfig";
+import TabBar from "./TabBar";
 
 export default function Navigation() {
   const pathname = usePathname() ?? "";
@@ -27,6 +28,7 @@ export default function Navigation() {
   }, []);
 
   return (
+    <>
     <nav className="nav">
       <div className="nav-inner">
         <Link href="/" className="nav-logo">{siteName}</Link>
@@ -47,5 +49,13 @@ export default function Navigation() {
         <div className="nav-actions" />
       </div>
     </nav>
+
+    <TabBar tabs={[
+      { label: "Home", icon: "home", href: "/", active: pathname === "/" },
+      { label: "Projects", icon: "box", href: "/projects", active: pathname.startsWith("/projects") },
+      ...(isLoggedIn ? [{ label: "Hub", icon: "grid", href: "/hub", active: pathname.startsWith("/hub") }] : []),
+      ...(isAdmin ? [{ label: "Dashboard", icon: "gauge", href: "/dashboard" }] : []),
+    ]} />
+    </>
   );
 }

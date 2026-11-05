@@ -10,15 +10,16 @@ function getYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
+    const host = u.hostname.replace(/^(www|m)\./, "");
     let videoId: string | null = null;
-    if (u.hostname.includes("youtube.com")) {
+    if (host === "youtube.com" || host === "youtube-nocookie.com") {
       if (u.pathname === "/watch") videoId = u.searchParams.get("v");
-      else if (u.pathname.startsWith("/embed/")) videoId = u.pathname.split("/embed/")[1].split("?")[0];
-      else if (u.pathname.startsWith("/shorts/")) videoId = u.pathname.split("/shorts/")[1].split("?")[0];
-    } else if (u.hostname === "youtu.be") {
-      videoId = u.pathname.slice(1).split("?")[0];
+      else if (u.pathname.startsWith("/embed/")) videoId = u.pathname.split("/embed/")[1];
+      else if (u.pathname.startsWith("/shorts/")) videoId = u.pathname.split("/shorts/")[1];
+    } else if (host === "youtu.be") {
+      videoId = u.pathname.slice(1);
     }
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    return videoId && /^[\w-]{1,64}$/.test(videoId) ? `https://www.youtube.com/embed/${videoId}` : null;
   } catch {
     return null;
   }
@@ -42,7 +43,10 @@ export default async function ProjectDetail({
   })();
 
   const galleryImages: string[] = (() => {
-    try { return (JSON.parse(project.gallery ?? "[]") as string[]).filter(Boolean); } catch { return []; }
+    try {
+      const parsed = JSON.parse(project.gallery ?? "[]");
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    } catch { return []; }
   })();
 
   const embedUrl = getYouTubeEmbedUrl(project.youtube_url ?? "");

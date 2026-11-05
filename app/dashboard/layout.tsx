@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import TabBar from "../components/TabBar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
@@ -46,14 +47,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="dashboard-root">
-      {/* Mobile top bar */}
-      <div className="dash-mobile-bar">
-        <button className="dash-hamburger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
-          <span /><span /><span />
-        </button>
-        <span className="dash-mobile-title">Dashboard</span>
-      </div>
-
       {/* Backdrop */}
       {menuOpen && <div className="dash-backdrop" onClick={() => setMenuOpen(false)} />}
 
@@ -95,6 +88,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main */}
       <main className="dashboard-main">{children}</main>
+
+      <TabBar tabs={[
+        { label: "Projects", icon: "box", href: "/dashboard", active: pathname === "/dashboard" },
+        { label: "New", icon: "plus", href: "/dashboard/new", active: pathname === "/dashboard/new" },
+        { label: "Home Page", icon: "edit", href: "/dashboard/home", active: pathname === "/dashboard/home" },
+        { label: "Hub", icon: "grid", href: "/dashboard/hub", active: pathname === "/dashboard/hub" },
+        { label: "More", icon: "menu", active: menuOpen, onClick: () => setMenuOpen(true) },
+      ]} />
     </div>
   );
 }

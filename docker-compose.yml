@@ -1,6 +1,6 @@
 services:
   amethyst:
-    image: amethyst:latest
+    image: rayderc/amethyst:latest
     container_name: amethyst
     restart: always
     ports:

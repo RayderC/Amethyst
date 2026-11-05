@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # ---------- deps ----------
-FROM node:20-bookworm-slim AS deps
+FROM node:24-bookworm-slim AS deps
 WORKDIR /app
 
 # better-sqlite3 needs a toolchain to build its native binding from source.
@@ -13,7 +13,7 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 # ---------- builder ----------
-FROM node:20-bookworm-slim AS builder
+FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 
 RUN apt-get update \
@@ -29,7 +29,7 @@ ENV SESSION_SECRET=build_time_placeholder_secret_at_least_32_chars
 RUN npm run build
 
 # ---------- runner ----------
-FROM node:20-bookworm-slim AS runner
+FROM node:24-bookworm-slim AS runner
 WORKDIR /app
 
 RUN apt-get update \
@@ -50,9 +50,12 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
-    && mkdir -p /data /app/public/uploads
+# Strip CRLF in case the repo was checked out on Windows; it would break the shebang.
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh \
+    && mkdir -p /data /app/public/uploads && chown node:node /data /app/public/uploads
 
 EXPOSE 3000
 
+# No USER line: docker-entrypoint.sh fixes the data folders' ownership as root, then drops to the node user.
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

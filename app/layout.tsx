@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     appleWebApp: {
       capable: true,
-      statusBarStyle: 'black-translucent',
+      statusBarStyle: 'black',
       title: name,
     },
     other: {

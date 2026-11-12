@@ -477,13 +477,13 @@ body > * { position: relative; z-index: 2; }
 
 .footer-login-link {
   font-size: 11px;
-  color: var(--text-subtle);
-  opacity: 0.4;
+  color: var(--text-muted);
+  opacity: 0.7;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   transition: opacity 0.2s;
 }
-.footer-login-link:hover { opacity: 0.9; color: var(--primary-light); }
+.footer-login-link:hover, .footer-login-link:focus-visible { opacity: 1; color: var(--primary-light); }
 
 .hero {
   min-height: calc(100vh - 64px);
@@ -1958,4 +1958,50 @@ body > * { position: relative; z-index: 2; }
 
 @media (max-width: 900px) {
   .nav-links { display: none; }
+}
+/* Backups, update notice and sign-ins */
+.ops-card { padding: 22px; margin-top: 24px; max-width: 640px; }
+.ops-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.ops-hint { font-size: 13px; color: var(--text-muted); line-height: 1.55; margin: 0 0 10px; }
+.ops-muted { color: var(--text-muted); font-size: 12px; }
+.ops-bad { color: var(--danger); font-size: 12px; font-weight: 600; }
+.ops-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.ops-list summary { cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 6px 0; }
+.ops-row { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.ops-row .ops-actions { margin: 0; }
+.update-quiet { font-size: 12px; color: var(--text-subtle); margin: 0 0 16px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.update-card { border-color: var(--accent-cyan); }
+.update-cmd { font-family: var(--font-mono); font-size: 13px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; white-space: pre-wrap; word-break: break-all; }
+
+
+/* Hub: your apps, status dots */
+.hub-category { font-size: 11px; font-weight: 700; color: var(--primary-light); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 20px; }
+.app-card-icon { background: transparent; border: none; padding: 0; }
+.app-card-icon img { width: 44px; height: 44px; border-radius: 10px; display: block; }
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; vertical-align: middle; background: var(--text-subtle); }
+.status-up { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.status-down { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+.status-checking { animation: status-pulse 1.2s ease-in-out infinite; }
+@keyframes status-pulse { 50% { opacity: 0.3; } }
+@media (prefers-reduced-motion: reduce) { .status-checking { animation: none; } }
+.linked-apps { margin-top: 32px; padding: 22px; }
+.linked-app-row { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-top: 1px solid var(--border); }
+.linked-app-icon { border-radius: 9px; flex-shrink: 0; }
+.linked-app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.linked-app-name { font-weight: 700; font-size: 14px; }
+.linked-app-edit { display: flex; gap: 8px; }
+.linked-app-edit .form-input { flex: 1; min-width: 0; }
+.linked-app-hide { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--text-muted); }
+.sso-steps { margin: 4px 0 12px 18px; font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+.sso-code { font-family: var(--font-mono); font-size: 12px; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; word-break: break-all; }
+.sso-secret { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+.sso-card { max-width: 440px; }
+.sso-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+
+/* Cards on the System and Hub pages */
+.card.ops-card, .card.linked-apps { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-top: 20px; }
+.update-quiet { margin-bottom: 4px; }
+@media (max-width: 640px) {
+  .hide-narrow { display: none; }
+  .card.ops-card, .card.linked-apps { padding: 18px 16px; }
 }

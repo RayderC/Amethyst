@@ -33,8 +33,9 @@ export default async function ProjectDetail({
   const { projectId } = await params;
 
   const project = db
-    .prepare("SELECT * FROM projects WHERE id = ?")
-    .get(projectId) as Project | undefined;
+    // By its readable name (/projects/steel-workbench) or, for old links, its number.
+    .prepare("SELECT * FROM projects WHERE slug = ? OR id = ? ORDER BY slug = ? DESC LIMIT 1")
+    .get(projectId, projectId, projectId) as Project | undefined;
 
   if (!project) notFound();
 

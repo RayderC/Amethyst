@@ -57,6 +57,9 @@ export default function Login() {
     });
     setLoading(false);
     if (res.ok) {
+      // Back to where sign-in was asked for, like another app's "Sign in with Amethyst". Only paths on this site.
+      const next = new URLSearchParams(window.location.search).get("next");
+      if (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\")) { window.location.assign(next); return; }
       const user = await fetch("/api/user").then((r) => (r.ok ? r.json() : null));
       router.push(user?.isAdmin ? "/dashboard" : "/hub");
     } else {

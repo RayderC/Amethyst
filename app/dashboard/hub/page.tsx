@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ServiceLink } from "../../../pages/api/sessions/index";
+import LinkedAppsCard from "../components/LinkedAppsCard";
 import { normalizeUrl } from "../../../lib/url";
 
 type FormState = {
@@ -292,6 +293,7 @@ export default function DashboardHubPage() {
           </table>
         </div>
       )}
+      <LinkedAppsCard />
     </>
   );
 }

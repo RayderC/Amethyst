@@ -43,6 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: "/dashboard/home", label: "Home Page", icon: "⌂" },
     { href: "/dashboard/hub", label: "Hub", icon: "⬡" },
     { href: "/dashboard/users", label: "Users", icon: "◉" },
+    { href: "/dashboard/system", label: "System", icon: "⚙" },
   ];
 
   return (

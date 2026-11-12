@@ -68,9 +68,9 @@ export default function DashboardPage() {
             <thead>
               <tr>
                 <th>Title</th>
-                <th>Tech Stack</th>
+                <th className="hide-narrow">Tech Stack</th>
                 <th>Featured</th>
-                <th>Created</th>
+                <th className="hide-narrow">Created</th>
                 <th style={{ width: "120px" }}>Actions</th>
               </tr>
             </thead>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
                         {p.title}
                       </Link>
                     </td>
-                    <td>
+                    <td className="hide-narrow">
                       <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                         {tags.slice(0, 3).map((t) => <span key={t} className="tag">{t}</span>)}
                         {tags.length > 3 && <span className="tag">+{tags.length - 3}</span>}
@@ -95,7 +95,7 @@ export default function DashboardPage() {
                         ? <span className="badge badge-green">Yes</span>
                         : <span style={{ color: "var(--text-subtle)", fontSize: "13px" }}>No</span>}
                     </td>
-                    <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
+                    <td className="hide-narrow" style={{ color: "var(--text-muted)", fontSize: "13px" }}>
                       {new Date(p.created_at).toLocaleDateString()}
                     </td>
                     <td>

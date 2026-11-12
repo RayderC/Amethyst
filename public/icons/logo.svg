@@ -5,14 +5,13 @@
   </defs>
   <rect width="512" height="512" rx="104" fill="url(#bg)"/>
   <g transform="translate(256 256) scale(0.82) translate(-256 -256)">
-    <path d="M152 92h208l96 118-200 234L56 210z" fill="#7c3aed"/>
-    <path d="M152 92h208l-48 118H200z" fill="#c084fc"/>
-    <path d="M152 92L56 210h144z" fill="#a855f7"/>
-    <path d="M360 92l96 118H312z" fill="#9333ea"/>
-    <path d="M56 210h144l56 234z" fill="#6d28d9"/>
-    <path d="M200 210h112l-56 234z" fill="#a855f7"/>
-    <path d="M312 210h144L256 444z" fill="#5b21b6"/>
-    <path d="M214 124l-30 58" stroke="#f5e8ff" stroke-width="16" stroke-linecap="round" opacity="0.85"/>
-    <path d="M152 92h208l96 118-200 234L56 210z" fill="none" stroke="#22d3ee" stroke-width="10" stroke-linejoin="round" opacity="0.8"/>
+    <path d="M152 100h208l92 112-196 228L60 212z" fill="url(#g)"/>
+    <g fill="none" stroke="#0a0a12" stroke-width="14" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M68 212h376"/>
+      <path d="M152 100l52 112 52-112 52 112 52-112"/>
+      <path d="M204 212l52 216 52-216"/>
+    </g>
+    <path d="M402 52l12 36 36 12-36 12-12 36-12-36-36-12 36-12z" fill="#f472b6"/>
+    <path d="M96 334l8 24 24 8-24 8-8 24-8-24-24-8 24-8z" fill="#22d3ee"/>
   </g>
 </svg>

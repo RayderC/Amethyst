@@ -5,6 +5,7 @@ import { getApiSession } from "../../lib/auth";
 import { checkCsrf } from "../../lib/csrf";
 import { clientIp } from "../../lib/clientIp";
 import { checkRateLimit } from "../../lib/rateLimit";
+import { recordSignIn } from "../../lib/signIns";
 
 // Compared against when the username doesn't exist, so a miss takes as long as a wrong password.
 const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
@@ -45,6 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const matches = await bcrypt.compare(password, user?.password ?? DUMMY_HASH);
   if (!user || !matches) {
+    if (user) recordSignIn(user.id, req, false);
     res.status(400).json({ message: "Invalid credentials" });
     return;
   }
@@ -52,6 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const session = await getApiSession(req, res);
   session.user = { id: user.id, username: user.username, isAdmin: user.is_admin === 1, v: user.token_version };
   await session.save();
+  recordSignIn(user.id, req);
 
   res.json({ ok: true });
 }

@@ -9,11 +9,15 @@ A self-hosted personal portfolio built for makers, welders, and fabricators. Pos
 ### Public Site
 - **Home page** — Editable hero, bio, and skills section. All content is changed from the dashboard with no code edits required.
 - **Projects** — Full project list with tag-based filtering. Each project supports a thumbnail, photo gallery, YouTube embed, and a complete markdown writeup.
-- **Hub** — A private bookmarks page for self-hosted services (Jellyfin, Nextcloud, Plex, Portainer, etc.) with auto-fetched favicons. Visible to any logged-in user.
+- **Hub** — A private bookmarks page for self-hosted services (Jellyfin, Nextcloud, Plex, Portainer, etc.) with auto-fetched favicons. Visible to any logged-in user. Each link has a green or red dot for whether it answers right now.
+- **Your apps** — SkyBit, ComicOrbit, AstroFit and NitroLog sit at the top of the Hub with their own icons, at `localhost` on their usual ports (7070, 7080, 7090, 7100). `localhost` only opens on the server itself, so for phones change each address under **Dashboard → Hub** to the server's IP or domain, or hide the ones you don't run.
+- **Sign in with Amethyst** — turn on shared login under **Dashboard → System** and paste its secret into the other apps' admin pages. Their login pages then get a **Sign in with Amethyst** button that signs in the account with the same username. Apps on your Hub go straight through; any other address asks first.
 - **Animated cyberpunk UI** — Circuit board background, neon glows, scan effects, and a glitch animation on the hero title.
 - **Fully responsive** — Works on desktop and mobile. The admin dashboard has a slide-out drawer on small screens.
 
 ### Admin Dashboard
+- **System** — update notice (checks Docker Hub once a day, sends nothing about you), shared login, backups, and your recent sign-ins with **Sign out everywhere else**.
+- **Backups** — a copy of the database every night (the last 7, in `/data/backups`), plus **Download backup** (database and uploaded pictures in one `.tar`) and restore from a file or a saved copy. A copy is saved before every restore, so it can be undone.
 - **Projects** — Create, edit, and delete projects. Upload thumbnail and gallery photos directly (no external hosting needed). YouTube URL auto-parses into an embed.
 - **Home Page Editor** — Change your name, badge text, hero lines, bio, skills list, email, and GitHub link. Updates the live site instantly.
 - **Hub Manager** — Add, edit, and reorder links to self-hosted services. Favicon is auto-fetched from the service URL.

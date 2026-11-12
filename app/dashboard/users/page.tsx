@@ -173,6 +173,11 @@ export default function UsersPage() {
                   <td>
                     <div style={{ display: "flex", gap: "6px" }}>
                       <button className="btn btn-sm" onClick={() => startEdit(u)}>Edit</button>
+                      <button className="btn btn-sm" onClick={async () => {
+                        if (!confirm(`Sign ${u.username} out of every device?`)) return;
+                        const r = await fetch("/api/admin/sign-out", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: u.id }) });
+                        if (r.ok) setSuccess(`${u.username} is signed out everywhere.`); else setError((await r.json()).message || "Failed");
+                      }}>Sign out</button>
                       <button
                         className="btn btn-danger btn-sm"
                         onClick={() => handleDelete(u.id, u.username)}

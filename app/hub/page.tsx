@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navigation from "../components/Navigation";
 import type { ServiceLink } from "../../pages/api/sessions/index";
-import { normalizeUrl, safeHostname } from "../../lib/url";
+import { normalizeUrl } from "../../lib/url";
+
+/** host and port, so two apps on the same machine can be told apart. */
+const hostOf = (url: string) => { try { return new URL(url).host; } catch { return url; } };
+import type { LinkedApp } from "../../lib/linkedApps";
+import { StatusDot, useHubStatus, type Status } from "../components/HubStatus";
 
 type GroupedLinks = Record<string, ServiceLink[]>;
 
@@ -13,6 +18,12 @@ export default function HubPage() {
   const [links, setLinks] = useState<ServiceLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [authed, setAuthed] = useState(false);
+  const [apps, setApps] = useState<LinkedApp[]>([]);
+  const shownApps = apps.filter((a) => !a.hidden);
+  const status = useHubStatus([
+    ...shownApps.map((a) => ({ key: a.key, url: a.url })),
+    ...links.map((l) => ({ key: `link-${l.id}`, url: normalizeUrl(l.url) })),
+  ]);
 
   useEffect(() => {
     fetch("/api/user")
@@ -20,6 +31,7 @@ export default function HubPage() {
       .then((data) => {
         if (!data) { router.replace("/login"); return; }
         setAuthed(true);
+        fetch("/api/hub/apps").then((r) => (r.ok ? r.json() : [])).then(setApps).catch(() => {});
         return fetch("/api/sessions");
       })
       .then((r) => (r ? r.json() : []))
@@ -58,26 +70,32 @@ export default function HubPage() {
           </p>
         </div>
 
+        {shownApps.length > 0 && (
+          <div style={{ marginBottom: "56px" }}>
+            <p className="hub-category">Your apps</p>
+            <div className="sessions-grid">
+              {shownApps.map((a) => <AppCard key={a.key} app={a} status={status[a.key]} />)}
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div style={{ textAlign: "center", padding: "80px 0", color: "var(--text-muted)" }}>Loading…</div>
         ) : links.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">⬡</div>
-            <p className="empty-title">No services yet</p>
-            <p className="empty-desc">Add links from the dashboard to get started.</p>
-          </div>
+          shownApps.length > 0 ? null : (
+            <div className="empty-state">
+              <div className="empty-icon">⬡</div>
+              <p className="empty-title">No services yet</p>
+              <p className="empty-desc">Add links from the dashboard to get started.</p>
+            </div>
+          )
         ) : (
           Object.entries(grouped).map(([category, catLinks]) => (
             <div key={category} style={{ marginBottom: "56px" }}>
-              <p style={{
-                fontSize: "11px", fontWeight: 700, color: "var(--primary-light)",
-                letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "20px"
-              }}>
-                {category}
-              </p>
+              <p className="hub-category">{category}</p>
               <div className="sessions-grid">
                 {catLinks.map((link) => (
-                  <ServiceCard key={link.id} link={link} />
+                  <ServiceCard key={link.id} link={link} status={status[`link-${link.id}`]} />
                 ))}
               </div>
             </div>
@@ -88,7 +106,23 @@ export default function HubPage() {
   );
 }
 
-function ServiceCard({ link }: { link: ServiceLink }) {
+function AppCard({ app, status }: { app: LinkedApp; status: Status | undefined }) {
+  return (
+    <a href={app.url} target="_blank" rel="noopener noreferrer" className="service-card app-card" data-app={app.key}>
+      <div className="service-card-icon app-card-icon">
+        <img src={app.icon} alt="" width={44} height={44} />
+      </div>
+      <div className="service-card-body">
+        <div className="service-card-name">{app.name} <StatusDot status={status} /></div>
+        <div className="service-card-desc">{app.description}</div>
+        <div className="service-card-url">{hostOf(app.url)}</div>
+      </div>
+      <div className="service-card-arrow">↗</div>
+    </a>
+  );
+}
+
+function ServiceCard({ link, status }: { link: ServiceLink; status: Status | undefined }) {
   const href = normalizeUrl(link.url);
   const faviconSrc = link.icon_url || `/api/favicon?url=${encodeURIComponent(href)}`;
   const letter = link.name.charAt(0).toUpperCase();
@@ -117,12 +151,12 @@ function ServiceCard({ link }: { link: ServiceLink }) {
         />
       </div>
       <div className="service-card-body">
-        <div className="service-card-name">{link.name}</div>
+        <div className="service-card-name">{link.name} <StatusDot status={status} /></div>
         {link.description && (
           <div className="service-card-desc">{link.description}</div>
         )}
         <div className="service-card-url">
-          {safeHostname(href)}
+          {hostOf(href)}
         </div>
       </div>
       <div className="service-card-arrow">↗</div>

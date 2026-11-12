@@ -25,7 +25,7 @@ export default function ProjectCard({ project }: { project: Project }) {
   })();
 
   return (
-    <Link href={`/projects/${project.id}`} className={`project-card${project.featured === 1 ? " project-card--featured" : ""}`}>
+    <Link href={`/projects/${project.slug || project.id}`} className={`project-card${project.featured === 1 ? " project-card--featured" : ""}`}>
       <div className="project-card-media">
         {project.image_url ? (
           <img src={project.image_url} alt={project.title} className="project-card-img" />

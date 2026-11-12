@@ -35,7 +35,7 @@ function SsoCard() {
 
   return (
     <div className="card ops-card" id="sso">
-      <h2 className="ops-title">Sign in with Amethyst</h2>
+      <div className="ops-head"><h2 className="ops-title">Sign in with Amethyst</h2><span className={`ops-badge${state.enabled ? " on" : ""}`}>{state.enabled ? "On" : "Off"}</span></div>
       <p className="ops-hint">
         Lets people sign in to SkyBit, ComicOrbit, AstroFit and NitroLog with their Amethyst account. It matches by username,
         so the person needs an account with the same name in that app. Their own password still works there too.

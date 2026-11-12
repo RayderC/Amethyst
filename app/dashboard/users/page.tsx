@@ -102,12 +102,12 @@ export default function UsersPage() {
 
           <div className="form-group">
             <label className="form-label" htmlFor="username">Username</label>
-            <input type="text" id="username" name="username" className="form-input" placeholder="newuser" autoComplete="off" required />
+            <input data-bwignore="true" data-1p-ignore="true" data-lpignore="true" type="text" id="username" name="username" className="form-input" placeholder="newuser" autoComplete="off" required />
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="password">Password</label>
-            <input type="password" id="password" name="password" className="form-input" placeholder="At least 8 characters" minLength={8} required />
+            <input data-bwignore="true" data-1p-ignore="true" data-lpignore="true" autoComplete="new-password" type="password" id="password" name="password" className="form-input" placeholder="At least 8 characters" minLength={8} required />
           </div>
 
           <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "var(--text-muted)" }}>
@@ -142,11 +142,11 @@ export default function UsersPage() {
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
                       <div className="form-group" style={{ margin: 0, minWidth: "160px" }}>
                         <label className="form-label" htmlFor={`eu-name-${u.id}`} style={{ fontSize: "11px" }}>Username</label>
-                        <input id={`eu-name-${u.id}`} className="form-input" autoComplete="off" value={editUsername} onChange={(e) => setEditUsername(e.target.value)} />
+                        <input data-bwignore="true" data-1p-ignore="true" data-lpignore="true" id={`eu-name-${u.id}`} className="form-input" autoComplete="off" value={editUsername} onChange={(e) => setEditUsername(e.target.value)} />
                       </div>
                       <div className="form-group" style={{ margin: 0, minWidth: "160px" }}>
                         <label className="form-label" htmlFor={`eu-pw-${u.id}`} style={{ fontSize: "11px" }}>New password (leave blank to keep)</label>
-                        <input id={`eu-pw-${u.id}`} type="password" className="form-input" autoComplete="new-password" placeholder="unchanged" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} />
+                        <input data-bwignore="true" data-1p-ignore="true" data-lpignore="true" id={`eu-pw-${u.id}`} type="password" className="form-input" autoComplete="new-password" placeholder="unchanged" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} />
                       </div>
                       <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--text-muted)", paddingBottom: "4px" }}>
                         <input type="checkbox" checked={editIsAdmin} onChange={(e) => setEditIsAdmin(e.target.checked)} /> Admin

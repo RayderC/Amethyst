@@ -1,6 +1,7 @@
 import { SessionOptions } from "iron-session";
 
-export type User = { id: number; username: string; isAdmin?: boolean };
+/** `v` is the account's token version when this session signed in. A password reset bumps it, ending the session. */
+export type User = { id: number; username: string; isAdmin?: boolean; v?: number };
 
 declare module "iron-session" {
   interface IronSessionData {

@@ -53,6 +53,11 @@ try {
   db.exec(`ALTER TABLE users ADD COLUMN created_at TEXT NOT NULL DEFAULT (datetime('now'))`)
 } catch { /* column already exists */ }
 
+// Bumped when an admin resets a password, which signs that person out of every device.
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0`)
+} catch { /* column already exists */ }
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS service_links (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

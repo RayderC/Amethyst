@@ -40,8 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const user = db
-    .prepare("SELECT id, username, password, is_admin FROM users WHERE username = ?")
-    .get(name) as { id: number; username: string; password: string; is_admin: number } | undefined;
+    .prepare("SELECT id, username, password, is_admin, token_version FROM users WHERE username = ?")
+    .get(name) as { id: number; username: string; password: string; is_admin: number; token_version: number } | undefined;
 
   const matches = await bcrypt.compare(password, user?.password ?? DUMMY_HASH);
   if (!user || !matches) {
@@ -50,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const session = await getApiSession(req, res);
-  session.user = { id: user.id, username: user.username, isAdmin: user.is_admin === 1 };
+  session.user = { id: user.id, username: user.username, isAdmin: user.is_admin === 1, v: user.token_version };
   await session.save();
 
   res.json({ ok: true });

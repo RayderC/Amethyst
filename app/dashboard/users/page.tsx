@@ -15,6 +15,29 @@ export default function UsersPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editUsername, setEditUsername] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [editIsAdmin, setEditIsAdmin] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState("");
+
+  function startEdit(u: AdminUser) {
+    setEditingId(u.id); setEditUsername(u.username); setEditPassword(""); setEditIsAdmin(u.is_admin === 1); setEditError("");
+  }
+
+  async function saveEdit(u: AdminUser) {
+    setEditSaving(true); setEditError("");
+    const body: Record<string, unknown> = {};
+    if (editUsername.trim().toLowerCase() !== u.username) body.username = editUsername.trim();
+    if (editPassword) body.password = editPassword;
+    if (editIsAdmin !== (u.is_admin === 1)) body.isAdmin = editIsAdmin;
+    if (!Object.keys(body).length) { setEditSaving(false); setEditingId(null); return; }
+    const res = await fetch(`/api/users/${u.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    setEditSaving(false);
+    if (res.ok) { setEditingId(null); setSuccess(`Saved ${String(body.username ?? u.username).toLowerCase()}`); load(); }
+    else setEditError((await res.json().catch(() => ({})))?.message || "Couldn't save");
+  }
 
   function load() {
     setLoading(true);
@@ -108,11 +131,35 @@ export default function UsersPage() {
                 <th>Username</th>
                 <th>Role</th>
                 <th>Created</th>
-                <th style={{ width: "120px" }}>Actions</th>
+                <th style={{ width: "160px" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {users.map((u) => editingId === u.id ? (
+                <tr key={u.id}>
+                  <td colSpan={4} style={{ padding: "16px" }}>
+                    {editError && <p className="form-error" style={{ marginBottom: "12px" }}>{editError}</p>}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
+                      <div className="form-group" style={{ margin: 0, minWidth: "160px" }}>
+                        <label className="form-label" htmlFor={`eu-name-${u.id}`} style={{ fontSize: "11px" }}>Username</label>
+                        <input id={`eu-name-${u.id}`} className="form-input" autoComplete="off" value={editUsername} onChange={(e) => setEditUsername(e.target.value)} />
+                      </div>
+                      <div className="form-group" style={{ margin: 0, minWidth: "160px" }}>
+                        <label className="form-label" htmlFor={`eu-pw-${u.id}`} style={{ fontSize: "11px" }}>New password (leave blank to keep)</label>
+                        <input id={`eu-pw-${u.id}`} type="password" className="form-input" autoComplete="new-password" placeholder="unchanged" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} />
+                      </div>
+                      <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--text-muted)", paddingBottom: "4px" }}>
+                        <input type="checkbox" checked={editIsAdmin} onChange={(e) => setEditIsAdmin(e.target.checked)} /> Admin
+                      </label>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button className="btn btn-primary btn-sm" onClick={() => saveEdit(u)} disabled={editSaving}>{editSaving ? "Saving…" : "Save"}</button>
+                        <button className="btn btn-sm" onClick={() => setEditingId(null)}>Cancel</button>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "10px" }}>A new password signs {u.username} out of every device.</p>
+                  </td>
+                </tr>
+              ) : (
                 <tr key={u.id}>
                   <td style={{ color: "var(--text)", fontWeight: 600 }}>{u.username}</td>
                   <td>
@@ -124,12 +171,15 @@ export default function UsersPage() {
                     {new Date(u.created_at).toLocaleDateString()}
                   </td>
                   <td>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(u.id, u.username)}
-                    >
-                      Delete
-                    </button>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      <button className="btn btn-sm" onClick={() => startEdit(u)}>Edit</button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDelete(u.id, u.username)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

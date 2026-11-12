@@ -11,11 +11,13 @@ export type SessionData = { user?: User };
  */
 export function verify(session: IronSession<SessionData>) {
   if (!session.user) return session;
-  const row = db.prepare("SELECT id, username, is_admin FROM users WHERE id = ?").get(session.user.id) as
-    | { id: number; username: string; is_admin: number }
+  const row = db.prepare("SELECT id, username, is_admin, token_version FROM users WHERE id = ?").get(session.user.id) as
+    | { id: number; username: string; is_admin: number; token_version: number }
     | undefined;
-  if (row) session.user = { id: row.id, username: row.username, isAdmin: row.is_admin === 1 };
-  else session.destroy();
+  // Sessions from before token versions existed count as version 0.
+  if (row && (session.user.v ?? 0) === row.token_version) {
+    session.user = { id: row.id, username: row.username, isAdmin: row.is_admin === 1, v: row.token_version };
+  } else session.destroy();
   return session;
 }
 

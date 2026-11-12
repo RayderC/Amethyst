@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const session = await getApiSession(req, res);
-  session.user = { id: info.lastInsertRowid as number, username: name, isAdmin: true };
+  session.user = { id: info.lastInsertRowid as number, username: name, isAdmin: true, v: 0 };
   await session.save();
 
   res.json({ ok: true });
